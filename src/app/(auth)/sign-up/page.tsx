@@ -64,8 +64,8 @@ function SignUpForm({ redirectTo }: { redirectTo: string | undefined }) {
       toast.error("Ocurrió un error.")
     },
     onSuccess: (data) => {
-      if (data.status === 400) {
-        toast.error(data.message)
+      if (data?.error) {
+        toast.error(data.error)
         return
       }
       // account has been created, the server automatically redirects the user.

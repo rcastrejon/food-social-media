@@ -61,7 +61,11 @@ function SignInForm({ redirectTo }: { redirectTo: string | undefined }) {
     onError: () => {
       toast.error("Ocurrió un error.")
     },
-    onSuccess: (_data) => {
+    onSuccess: (data) => {
+      if (data?.error) {
+        toast.error(data.error)
+        return
+      }
       // the server automatically redirects the user.
       toast.info("Redirigiendo...")
     },

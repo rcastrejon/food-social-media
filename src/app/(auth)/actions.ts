@@ -1,29 +1,33 @@
 "use server"
 
-import { redirect } from "next/navigation"
 import { parse } from "valibot"
 
-import { SignUpSchema } from "~/lib/validators/auth"
+import { SignInSchema, SignUpSchema } from "~/lib/validators/auth"
+import { createUserSession } from "~/server/auth/sessions"
+import { createUser, verifyUsernamePassword } from "~/server/models/user"
 
 export async function signUp(values: unknown) {
-  const fields = parse(SignUpSchema, values)
-  if (fields.username === "test") {
+  const { username, password, redirectTo } = parse(SignUpSchema, values)
+  const userCreated = await createUser(username, password)
+  if (userCreated.error === "username-taken") {
     return {
-      status: 400,
-      message: "Nombre de usuario inválido.",
-    } as const
+      error: "Este nombre de usuario ya está en uso. Por favor, elige otro.",
+    }
   }
-  console.log(fields)
-  await new Promise((resolve) => setTimeout(resolve, 2000))
-  redirect("/")
+  await createUserSession({
+    userId: userCreated.userId,
+    redirectTo: redirectTo ?? "/",
+  })
 }
 
 export async function signIn(values: unknown) {
-  const fields = parse(SignUpSchema, values)
-  if (fields.username === "test") {
-    throw new Error("Username already taken")
+  const { username, password, redirectTo } = parse(SignInSchema, values)
+  const valid = await verifyUsernamePassword(username, password)
+  if (valid.error === "invalid-username-pass") {
+    return { error: "Nombre de usuario o contraseña incorrectos." }
   }
-  console.log(fields)
-  await new Promise((resolve) => setTimeout(resolve, 2000))
-  redirect("/")
+  await createUserSession({
+    userId: valid.user.id,
+    redirectTo: redirectTo ?? "/",
+  })
 }

@@ -1,10 +1,17 @@
 import Image from "next/image"
+import { redirect } from "next/navigation"
 
+import { validateRequest } from "~/server/auth/validate-request"
 import cover from "./sandwich-cover.jpeg"
 
-export default function Layout({
+export default async function Layout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const { user } = await validateRequest()
+  if (user) {
+    return redirect("/")
+  }
+
   return (
     <div className="flex min-h-screen flex-row-reverse">
       <div className="flex flex-1 flex-col justify-center px-4 py-12 sm:px-6 lg:flex-none lg:px-20">
