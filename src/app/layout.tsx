@@ -1,8 +1,10 @@
 import type { Metadata } from "next"
 import { Inter, Playfair_Display } from "next/font/google"
 
-import "./globals.css"
+import "~/globals.css"
 
+import { Toaster } from "~/components/ui/sonner"
+import Providers from "~/lib/providers"
 import { cn } from "~/lib/utils"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" })
@@ -31,7 +33,10 @@ export default function RootLayout({
           playfair.variable,
         )}
       >
-        {children}
+        <Providers>
+          {children}
+          <Toaster closeButton richColors />
+        </Providers>
       </body>
     </html>
   )
