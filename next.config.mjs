@@ -6,6 +6,16 @@ const nextConfig = {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return config
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "utfs.io",
+        port: "",
+        pathname: "/f/**",
+      },
+    ],
+  },
   logging: {
     fetches: {
       fullUrl: true,

@@ -1,3 +1,5 @@
+import { redirect } from "next/navigation"
+
 import { Button } from "~/components/ui/button"
 import {
   DropdownMenu,
@@ -19,17 +21,17 @@ export default async function Layout({
 
   return (
     <div>
-      <div className="sticky top-0 z-40 grid h-strip grid-cols-1 items-center border-b bg-background/85 backdrop-blur-xl sm:h-header sm:grid-cols-[1fr,_max-content,_1fr]">
-        <div className="hidden sm:block" />
-        <div className="hidden w-screen max-w-lg sm:block">
+      <header className="sticky top-0 z-40 grid h-strip grid-cols-1 items-center border-b bg-background/85 backdrop-blur-xl md:h-header md:grid-cols-[1fr,_max-content,_1fr]">
+        <div className="hidden md:block" />
+        <div className="hidden w-screen max-w-lg md:block">
           <Navbar />
         </div>
         <div className="ml-auto mr-3.5">
           <HeaderRightSlot isAuthenticated={user !== null} />
         </div>
-      </div>
-      <main>{children}</main>
-      <div className="fixed bottom-0 z-40 h-header w-screen border-t bg-background/85 backdrop-blur-xl sm:hidden">
+      </header>
+      <main className="mb-header md:mb-0">{children}</main>
+      <div className="fixed bottom-0 z-40 h-header w-screen border-t bg-background/85 backdrop-blur-xl md:hidden">
         <Navbar />
       </div>
     </div>
@@ -42,7 +44,7 @@ function HeaderRightSlot({ isAuthenticated }: { isAuthenticated: boolean }) {
 
     const { session } = await validateRequest()
     if (!session) {
-      throw new Error("Something went wrong...")
+      redirect("/")
     }
 
     await lucia.invalidateSession(session.id)
@@ -57,7 +59,7 @@ function HeaderRightSlot({ isAuthenticated }: { isAuthenticated: boolean }) {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button className="h-12 w-12" variant="ghost" size="icon">
-            <span className="i-[lucide--align-right] h-6 w-6 bg-black" />
+            <span className="i-[lucide--align-right] h-6 w-6" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
