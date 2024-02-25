@@ -67,7 +67,7 @@ function SignInForm({ redirectTo }: { redirectTo: string | undefined }) {
         return
       }
       // the server automatically redirects the user.
-      toast.info("Redirigiendo...")
+      toast.info("Inicio de sesión exitoso. Redirigiendo...")
     },
   })
 

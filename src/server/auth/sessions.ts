@@ -22,7 +22,13 @@ export async function createUserSession({
   }
 }
 
-export async function destroySession({ sessionId }: { sessionId: string }) {
+export async function destroySession({
+  sessionId,
+  redirectTo,
+}: {
+  sessionId: string
+  redirectTo: string | undefined
+}) {
   await lucia.invalidateSession(sessionId)
 
   const sessionCookie = lucia.createBlankSessionCookie()
@@ -31,4 +37,7 @@ export async function destroySession({ sessionId }: { sessionId: string }) {
     sessionCookie.value,
     sessionCookie.attributes,
   )
+  if (redirectTo) {
+    redirect(redirectTo)
+  }
 }

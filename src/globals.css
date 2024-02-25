@@ -33,6 +33,9 @@
     --ring: 240 10% 3.9%;
 
     --radius: 0.5rem;
+
+    --strip-height: 4rem;
+    --header-height: 5rem;
   }
 
   .dark {

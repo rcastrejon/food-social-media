@@ -78,6 +78,10 @@ const config = {
         sans: ["var(--font-sans)", ...defaultTheme.fontFamily.sans],
         serif: ["var(--font-serif)", ...defaultTheme.fontFamily.serif],
       },
+      spacing: {
+        strip: "var(--strip-height)",
+        header: "var(--header-height)",
+      },
     },
   },
   plugins: [
