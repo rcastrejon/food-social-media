@@ -4,31 +4,24 @@ import { Fragment } from "react"
 import Image from "next/image"
 import { useInfiniteQuery } from "@tanstack/react-query"
 import { intlFormatDistance } from "date-fns"
+import { useIntersectionObserver } from "usehooks-ts"
 
 import { AspectRatio } from "~/components/ui/aspect-ratio"
+import { Button } from "~/components/ui/button"
 import { getFeedPage } from "~/server/models/recipe"
 
 export function FeedList() {
-  const {
-    data,
-    error,
-    hasNextPage,
-    isFetchingNextPage,
-    isFetching,
-    fetchNextPage,
-  } = useInfiniteQuery({
-    queryKey: ["feed"],
-    queryFn: ({ pageParam }) => getFeedPage(pageParam),
-    initialPageParam: 1,
-    getNextPageParam: (lastPage) => lastPage.nextPage ?? undefined,
-  })
+  const { data, hasNextPage, isFetchingNextPage, fetchNextPage } =
+    useInfiniteQuery({
+      queryKey: ["feed"],
+      queryFn: ({ pageParam }) => getFeedPage(pageParam),
+      initialPageParam: 1,
+      getNextPageParam: (lastPage) => lastPage.nextPage ?? undefined,
+    })
 
-  if (error) {
-    return <div>error</div>
-  }
   if (data) {
     return (
-      <div className="w-full sm:m-auto sm:max-w-md">
+      <div className="sm:m-auto sm:max-w-md">
         {data.pages.map((page, pageIdx) => (
           <Fragment key={pageIdx}>
             {page.rows.map((recipe) => (
@@ -36,21 +29,11 @@ export function FeedList() {
             ))}
           </Fragment>
         ))}
-        <div>
-          <button
-            onClick={() => fetchNextPage()}
-            disabled={!hasNextPage || isFetchingNextPage}
-          >
-            {isFetchingNextPage
-              ? "Loading more..."
-              : hasNextPage
-                ? "Load Newer"
-                : "Nothing more to load"}
-          </button>
-        </div>
-        <div>
-          {isFetching && !isFetchingNextPage ? "Background Updating..." : null}
-        </div>
+        <IntersectionElement
+          hasNextPage={hasNextPage}
+          isFetchingNextPage={isFetchingNextPage}
+          loadNextPage={fetchNextPage}
+        />
       </div>
     )
   }
@@ -100,6 +83,44 @@ function FeedItem({
           </div>
         </div>
       </div>
+    </div>
+  )
+}
+
+function IntersectionElement({
+  hasNextPage,
+  isFetchingNextPage,
+  loadNextPage,
+}: {
+  hasNextPage: boolean
+  isFetchingNextPage: boolean
+  loadNextPage: () => void
+}) {
+  const { ref } = useIntersectionObserver({
+    onChange: (isIntersecting) => {
+      if (isIntersecting) {
+        loadNextPage()
+      }
+    },
+  })
+
+  if (!hasNextPage) {
+    return (
+      <div className="mt-10 text-center">
+        <p className="text-sm text-muted-foreground">Nada mas que ver</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="mt-10 flex justify-center" ref={ref}>
+      {isFetchingNextPage ? (
+        <span className="i-[lucide--loader] h-6 w-6 animate-spin" />
+      ) : (
+        <Button variant="link" onClick={loadNextPage}>
+          Cargar mas
+        </Button>
+      )}
     </div>
   )
 }

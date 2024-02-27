@@ -6,6 +6,7 @@ import { db } from "../db"
 import { recipeTable } from "../db/schema"
 
 export async function getFeedPage(page: number) {
+  // await new Promise((resolve) => setTimeout(resolve, 4000))
   const itemsPerPage = 4
   const offset = (page - 1) * itemsPerPage
   const rows = await db.query.recipeTable.findMany({
