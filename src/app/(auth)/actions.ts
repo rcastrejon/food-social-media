@@ -7,6 +7,7 @@ import { createUserSession } from "~/server/auth/sessions"
 import { createUser, verifyUsernamePassword } from "~/server/models/user"
 
 export async function signUp(values: unknown) {
+  await new Promise((resolve) => setTimeout(resolve, 500))
   const { username, password, redirectTo } = parse(SignUpSchema, values)
   const userCreated = await createUser(username, password)
   if (userCreated.error === "username-taken") {
@@ -21,6 +22,7 @@ export async function signUp(values: unknown) {
 }
 
 export async function signIn(values: unknown) {
+  await new Promise((resolve) => setTimeout(resolve, 500))
   const { username, password, redirectTo } = parse(SignInSchema, values)
   const valid = await verifyUsernamePassword(username, password)
   if (valid.error === "invalid-username-pass") {
