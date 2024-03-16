@@ -26,7 +26,6 @@ export async function getFeedPage(page: number) {
       },
       user: {
         columns: {
-          id: true,
           username: true,
         },
       },

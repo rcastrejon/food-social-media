@@ -8,6 +8,7 @@ import * as schema from "./schema"
 
 const libsqlClient = createClient({
   url: env.DATABASE_URL,
+  authToken: env.DATABASE_AUTH_TOKEN,
 })
 
 export const db = drizzle(libsqlClient, { schema })

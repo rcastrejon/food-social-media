@@ -6,6 +6,7 @@ const envSchema = object({
     "development",
   ),
   DATABASE_URL: string(),
+  DATABASE_AUTH_TOKEN: optional(string()),
 })
 
 export const env = parse(envSchema, process.env)
