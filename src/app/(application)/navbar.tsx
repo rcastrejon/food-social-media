@@ -35,12 +35,15 @@ const config = [
 
 export function Navbar() {
   const pathName = usePathname()
-
   return (
     <nav className="grid grid-cols-4">
       {config.map((item) => (
         <div className="grid h-header" key={item.title}>
-          <Button className="mx-0.5 my-1 h-auto" variant="ghost" asChild>
+          <Button
+            className="mx-0.5 my-1 h-auto hover:bg-black/5"
+            variant="ghost"
+            asChild
+          >
             <Link href={item.href} aria-label={item.title}>
               <span
                 className={cn(
@@ -60,7 +63,12 @@ export function SignInButton() {
   const pathName = usePathname()
   return (
     <Button size="sm">
-      <Link href={`/sign-in?redirect-to=${pathName}`}>Iniciar sesión</Link>
+      <Link
+        href={`/sign-in?redirect-to=${pathName}`}
+        aria-label="Iniciar sesión"
+      >
+        Iniciar sesión
+      </Link>
     </Button>
   )
 }

@@ -20,8 +20,8 @@ export default async function Layout({
   const { user } = await validateRequest()
 
   return (
-    <div>
-      <header className="sticky top-0 z-40 grid h-strip grid-cols-1 items-center border-b bg-background/85 backdrop-blur-xl md:h-header md:grid-cols-[1fr,_max-content,_1fr]">
+    <>
+      <header className="sticky top-0 z-40 grid h-strip grid-cols-1 items-center bg-background/85 backdrop-blur-xl md:h-header md:grid-cols-[1fr,_max-content,_1fr]">
         <div className="hidden md:block" />
         <div className="hidden w-screen max-w-lg md:block">
           <Navbar />
@@ -30,11 +30,11 @@ export default async function Layout({
           <HeaderRightSlot isAuthenticated={user !== null} />
         </div>
       </header>
-      <main className="mb-header md:mb-0">{children}</main>
+      <main className="mb-header pt-3.5 md:mb-0">{children}</main>
       <div className="fixed bottom-0 z-40 h-header w-screen border-t bg-background/85 backdrop-blur-xl md:hidden">
         <Navbar />
       </div>
-    </div>
+    </>
   )
 }
 

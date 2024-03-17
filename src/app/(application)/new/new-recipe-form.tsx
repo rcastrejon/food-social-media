@@ -87,9 +87,14 @@ export function UploadImage() {
         toast.error("Ocurrió un error.")
       }}
       content={{
-        button({ ready }) {
-          if (ready) return <div>Añadir imagen</div>
+        button({ ready, isUploading, uploadProgress }) {
+          if (isUploading) return `${uploadProgress}%`
+          else if (ready) return "Añadir imagen"
           return "Cargando..."
+        },
+        allowedContent({ ready }) {
+          if (ready) return "Imagen (4MB)"
+          return null
         },
       }}
     />

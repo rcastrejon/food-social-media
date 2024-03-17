@@ -107,7 +107,7 @@ function IntersectionElement({
   if (!hasNextPage) {
     return (
       <div className="mt-10 text-center">
-        <p className="text-sm text-muted-foreground">Nada mas que ver</p>
+        <p className="text-sm text-muted-foreground">Nada más que ver</p>
       </div>
     )
   }
@@ -118,7 +118,7 @@ function IntersectionElement({
         <span className="i-[lucide--loader] h-6 w-6 animate-spin" />
       ) : (
         <Button variant="link" onClick={loadNextPage}>
-          Cargar mas
+          Cargar más
         </Button>
       )}
     </div>
