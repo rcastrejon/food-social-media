@@ -2,40 +2,58 @@
 
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
-import { desc } from "drizzle-orm"
+import { and, desc, eq, sql } from "drizzle-orm"
 
 import type { RecipeInsert } from "../db/schema"
 import { newId } from "~/lib/utils"
 import { validateRequest } from "../auth/validate-request"
 import { db } from "../db"
-import { recipeTable } from "../db/schema"
+import { recipeTable, usersToRecipes } from "../db/schema"
 
 export async function getFeedPage(page: number) {
+  const { user } = await validateRequest()
+
   // await new Promise((resolve) => setTimeout(resolve, 4000))
   const itemsPerPage = 4
   const offset = (page - 1) * itemsPerPage
-  const rows = await db.query.recipeTable.findMany({
-    orderBy: [desc(recipeTable.createdAt)],
-    limit: itemsPerPage + 1,
-    offset,
-    with: {
-      media: {
-        columns: {
-          url: true,
+  const feedQuery = db.query.recipeTable
+    .findMany({
+      orderBy: [desc(recipeTable.createdAt)],
+      limit: sql.placeholder("limit"),
+      offset: sql.placeholder("offset"),
+      with: {
+        media: {
+          columns: {
+            url: true,
+          },
+        },
+        user: {
+          columns: {
+            username: true,
+          },
+        },
+        likes: {
+          columns: {
+            userId: true,
+          },
         },
       },
-      user: {
-        columns: {
-          username: true,
-        },
-      },
-    },
+    })
+    .prepare()
+  const rawRows = await feedQuery.execute({ limit: itemsPerPage + 1, offset })
+  const rows = rawRows.map((row) => {
+    const { likes, ...recipe } = row
+    return {
+      ...recipe,
+      likes: likes.length,
+      userHasLiked: likes.some((like) => like.userId === user?.id),
+    }
   })
 
   if (rows.length > itemsPerPage) {
     return { rows: rows.slice(0, itemsPerPage), nextPage: page + 1 }
   }
-  return { rows, nextPage: null }
+  return { rows: rows, nextPage: null }
 }
 
 export async function createRecipe({
@@ -61,4 +79,29 @@ export async function createRecipe({
   })
   revalidatePath("/")
   redirect("/")
+}
+
+export async function updateLike(recipeId: string, likeState: boolean) {
+  const { user } = await validateRequest()
+  if (!user) {
+    redirect("/sign-in?redirect-to=/new")
+  }
+
+  if (likeState === false) {
+    await db
+      .delete(usersToRecipes)
+      .where(
+        and(
+          eq(usersToRecipes.userId, user.id),
+          eq(usersToRecipes.recipeId, recipeId),
+        ),
+      )
+    return
+  }
+
+  await db.insert(usersToRecipes).values({
+    userId: user.id,
+    recipeId,
+  })
+  return
 }

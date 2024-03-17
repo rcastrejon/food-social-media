@@ -1,5 +1,12 @@
 import { relations } from "drizzle-orm"
-import { blob, int, integer, sqliteTable, text } from "drizzle-orm/sqlite-core"
+import {
+  blob,
+  int,
+  integer,
+  sqliteTable,
+  text,
+  unique,
+} from "drizzle-orm/sqlite-core"
 
 export const userTable = sqliteTable("user", {
   id: text("id").primaryKey(),
@@ -45,6 +52,15 @@ export const recipeTable = sqliteTable("recipe", {
     .notNull(),
 })
 
+// TODO: Maybe use sqlite views to avoid db:push issues
+//
+// export const recipeFts = sqliteView("recipe_fts", {
+//   title: text("title").notNull(),
+//   ingredients: text("ingredients").notNull(),
+//   content: text("content").notNull(),
+//   contentRowId: int("content_rowid").notNull(),
+// }).existing()
+
 export type RecipeSelect = typeof recipeTable.$inferSelect
 export type RecipeInsert = Omit<typeof recipeTable.$inferInsert, "userId"> & {
   userId: UserInsert["id"]
@@ -69,7 +85,7 @@ export type MediaInsert = Omit<typeof mediaTable.$inferInsert, "userId"> & {
   userId: UserInsert["id"]
 }
 
-export const recipeRelations = relations(recipeTable, ({ one }) => ({
+export const recipeRelations = relations(recipeTable, ({ one, many }) => ({
   user: one(userTable, {
     fields: [recipeTable.userId],
     references: [userTable.id],
@@ -77,5 +93,40 @@ export const recipeRelations = relations(recipeTable, ({ one }) => ({
   media: one(mediaTable, {
     fields: [recipeTable.mediaKey],
     references: [mediaTable.key],
+  }),
+  likes: many(usersToRecipes),
+}))
+
+export const usersToRecipes = sqliteTable(
+  "users_to_recipes",
+  {
+    userId: text("user_id")
+      .notNull()
+      .references(() => userTable.id, {
+        onDelete: "cascade",
+      }),
+    recipeId: text("recipe_id")
+      .notNull()
+      .references(() => recipeTable.id, {
+        onDelete: "cascade",
+      }),
+
+    createdAt: int("created_at", { mode: "timestamp" })
+      .$defaultFn(() => new Date())
+      .notNull(),
+  },
+  (table) => ({
+    unq: unique("user_recipe").on(table.userId, table.recipeId),
+  }),
+)
+
+export const usersToRecipesRelations = relations(usersToRecipes, ({ one }) => ({
+  recipe: one(recipeTable, {
+    fields: [usersToRecipes.recipeId],
+    references: [recipeTable.id],
+  }),
+  user: one(userTable, {
+    fields: [usersToRecipes.userId],
+    references: [userTable.id],
   }),
 }))

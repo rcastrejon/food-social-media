@@ -31,7 +31,7 @@ export default async function Layout({
         </div>
       </header>
       <main className="mb-header pt-3.5 md:mb-0">{children}</main>
-      <div className="fixed bottom-0 z-40 h-header w-screen border-t bg-background/85 backdrop-blur-xl md:hidden">
+      <div className="fixed bottom-0 z-40 h-header w-screen bg-background/85 backdrop-blur-xl md:hidden">
         <Navbar />
       </div>
     </>
