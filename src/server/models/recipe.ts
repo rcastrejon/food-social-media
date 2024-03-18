@@ -98,7 +98,7 @@ export async function createRecipe({
 export async function updateLike(recipeId: string, likeState: boolean) {
   const { user } = await validateRequest()
   if (!user) {
-    redirect("/sign-in?redirect-to=/new")
+    redirect("/sign-in?redirect-to=/")
   }
 
   if (likeState === false) {
