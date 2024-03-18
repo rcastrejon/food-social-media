@@ -63,12 +63,7 @@ export function SignInButton() {
   const pathName = usePathname()
   return (
     <Button size="sm">
-      <Link
-        href={`/sign-in?redirect-to=${pathName}`}
-        aria-label="Iniciar sesión"
-      >
-        Iniciar sesión
-      </Link>
+      <Link href={`/sign-in?redirect-to=${pathName}`}>Iniciar sesión</Link>
     </Button>
   )
 }

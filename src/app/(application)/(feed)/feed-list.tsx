@@ -78,7 +78,10 @@ function FeedItem({
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="group flex h-full items-center justify-center outline-none">
+            <button
+              className="group flex h-full items-center justify-center outline-none"
+              aria-label="Más opciones"
+            >
               <span className="i-[lucide--ellipsis] h-5 w-5 bg-foreground transition-colors group-data-[state=open]:bg-muted-foreground" />
             </button>
           </DropdownMenuTrigger>
@@ -104,6 +107,7 @@ function FeedItem({
           alt={recipe.title}
           sizes="(min-width: 640px) 448px, 100vw"
           placeholder="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+          priority
           fill
         />
       </AspectRatio>

@@ -58,7 +58,12 @@ function HeaderRightSlot({ isAuthenticated }: { isAuthenticated: boolean }) {
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button className="h-12 w-12" variant="ghost" size="icon">
+          <Button
+            className="h-12 w-12"
+            variant="ghost"
+            size="icon"
+            aria-label="Más"
+          >
             <span className="i-[lucide--align-right] h-6 w-6" />
           </Button>
         </DropdownMenuTrigger>

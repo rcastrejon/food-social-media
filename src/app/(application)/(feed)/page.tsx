@@ -1,3 +1,4 @@
+import { unstable_noStore as noStore } from "next/cache"
 import {
   dehydrate,
   HydrationBoundary,
@@ -12,6 +13,7 @@ export default async function Page() {
   const { user } = await validateRequest()
   const queryClient = new QueryClient()
 
+  noStore()
   await queryClient.prefetchInfiniteQuery({
     queryKey: ["feed"],
     queryFn: ({ pageParam }) => getFeedPage(pageParam),
