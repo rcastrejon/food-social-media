@@ -1,6 +1,6 @@
 "use client"
 
-import { Fragment, useTransition } from "react"
+import { Fragment } from "react"
 import Image from "next/image"
 import {
   useInfiniteQuery,
@@ -10,10 +10,20 @@ import {
 import { intlFormatDistance } from "date-fns"
 import { type User } from "lucia"
 import { useIntersectionObserver } from "usehooks-ts"
+import { create } from "zustand"
 
 import type { FeedRow } from "~/server/models/recipe"
 import { AspectRatio } from "~/components/ui/aspect-ratio"
 import { Button } from "~/components/ui/button"
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "~/components/ui/dialog"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,6 +33,20 @@ import {
 } from "~/components/ui/dropdown-menu"
 import { cn } from "~/lib/utils"
 import { deleteRecipe, getFeedPage, updateLike } from "~/server/models/recipe"
+
+interface DeleteRecipeDialogState {
+  isOpen: boolean
+  recipeId: string | undefined
+  open: (recipeId: string) => void
+  close: () => void
+}
+
+const useDeleteRecipeDialogStore = create<DeleteRecipeDialogState>((set) => ({
+  isOpen: false,
+  recipeId: undefined,
+  open: (recipeId: string) => set({ isOpen: true, recipeId }),
+  close: () => set({ isOpen: false, recipeId: undefined }),
+}))
 
 function useInfiniteFeed() {
   return useInfiniteQuery({
@@ -56,6 +80,7 @@ export function FeedList({ user }: { user: User | null }) {
           isFetchingNextPage={isFetchingNextPage}
           loadNextPage={fetchNextPage}
         />
+        <DeleteRecipeDialog />
       </div>
     )
   }
@@ -145,7 +170,7 @@ function OwnerDropdownItems({
   isUserOwner: boolean
   recipeId: string
 }) {
-  const [isPending, startTransition] = useTransition()
+  const open = useDeleteRecipeDialogStore((state) => state.open)
 
   if (!isUserOwner) {
     return null
@@ -154,15 +179,7 @@ function OwnerDropdownItems({
     <>
       <DropdownMenuSeparator />
       <DropdownMenuItem asChild>
-        <button
-          className="w-full"
-          disabled={isPending}
-          onClick={() => {
-            startTransition(() => {
-              void deleteRecipe(recipeId)
-            })
-          }}
-        >
+        <button className="w-full" onClick={() => open(recipeId)}>
           Borrar receta
         </button>
       </DropdownMenuItem>
@@ -256,5 +273,54 @@ function IntersectionElement({
         </Button>
       )}
     </div>
+  )
+}
+
+function DeleteRecipeDialog() {
+  const isOpen = useDeleteRecipeDialogStore((state) => state.isOpen)
+  const close = useDeleteRecipeDialogStore((state) => state.close)
+  const recipeId = useDeleteRecipeDialogStore((state) => state.recipeId)
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: (recipeId: string) => deleteRecipe(recipeId),
+    onSuccess: () => {
+      close()
+    },
+  })
+
+  function handleConfirm() {
+    if (!recipeId) {
+      return
+    }
+    mutate(recipeId)
+  }
+
+  return (
+    <Dialog open={isOpen} onOpenChange={close}>
+      <DialogContent role="alertdialog">
+        <DialogHeader>
+          <DialogTitle>Borrar receta</DialogTitle>
+          <DialogDescription>
+            ¿Estás seguro de que quieres borrar esta receta? Esta acción no se
+            puede deshacer.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button type="button" variant="outline">
+              Cancelar
+            </Button>
+          </DialogClose>
+          <Button
+            type="button"
+            variant="destructive"
+            onClick={handleConfirm}
+            disabled={isPending || recipeId === undefined}
+          >
+            Continuar
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }
