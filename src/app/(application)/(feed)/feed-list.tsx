@@ -7,6 +7,7 @@ import {
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query"
+import clsx from "clsx"
 import { intlFormatDistance } from "date-fns"
 import { useIntersectionObserver } from "usehooks-ts"
 
@@ -110,52 +111,42 @@ function LikeButton({
   userHasLiked: boolean
 }) {
   const queryClient = useQueryClient()
-  const likeRecipeMutation = useMutation({
+  const { isPending, mutate, variables } = useMutation({
     mutationFn: (newLikeState: boolean) => updateLike(recipeId, newLikeState),
     onSettled: () => queryClient.invalidateQueries({ queryKey: ["feed"] }),
   })
-  const optimisticData = likeRecipeMutation.isPending
+  const optimisticData = isPending
     ? {
-        likes: likes + (likeRecipeMutation.variables ? 1 : -1),
-        userHasLiked: likeRecipeMutation.variables,
+        likes: likes + (variables ? 1 : -1),
+        userHasLiked: variables,
       }
     : {
         likes,
         userHasLiked,
       }
 
-  if (optimisticData.userHasLiked === false) {
-    return (
-      <button
-        className="group flex flex-row items-center"
-        onClick={() => likeRecipeMutation.mutate(true)}
-        disabled={likeRecipeMutation.isPending}
-      >
-        <div className="flex flex-row items-center">
-          <span className="i-[mingcute--heart-line] h-5 w-5 transition-colors group-hover:bg-red-500" />
-        </div>
-        <div className="flex flex-row items-center">
-          <span className="px-1 text-xs transition-colors group-hover:text-red-500">
-            {optimisticData.likes}
-          </span>
-        </div>
-      </button>
-    )
-  }
+  const iconClass = clsx(
+    "h-5 w-5 transition-colors group-hover:bg-red-500",
+    optimisticData.userHasLiked === false && "i-[mingcute--heart-line]",
+    optimisticData.userHasLiked === true &&
+      "i-[mingcute--heart-fill] bg-red-500",
+  )
+  const textClass = clsx(
+    "px-1 text-xs transition-colors group-hover:text-red-500",
+    optimisticData.userHasLiked === true && "text-red-500",
+  )
 
   return (
     <button
       className="group flex flex-row items-center"
-      onClick={() => likeRecipeMutation.mutate(false)}
-      disabled={likeRecipeMutation.isPending}
+      onClick={() => mutate(!optimisticData.userHasLiked)}
+      disabled={isPending}
     >
       <div className="flex flex-row items-center">
-        <span className="i-[mingcute--heart-fill] h-5 w-5 bg-red-500" />
+        <span className={iconClass} />
       </div>
       <div className="flex flex-row items-center">
-        <span className="px-1 text-xs text-red-500">
-          {optimisticData.likes}
-        </span>
+        <span className={textClass}>{optimisticData.likes}</span>
       </div>
     </button>
   )
