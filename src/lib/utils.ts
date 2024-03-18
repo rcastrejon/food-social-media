@@ -11,6 +11,7 @@ export const prefixes = {
   user: "user",
   recipe: "recipe",
   media: "media",
+  test: "test",
 } as const
 
 export function newId(prefix: keyof typeof prefixes): string {

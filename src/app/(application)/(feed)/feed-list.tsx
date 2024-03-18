@@ -1,19 +1,28 @@
 "use client"
 
-import { Fragment } from "react"
+import { Fragment, useTransition } from "react"
 import Image from "next/image"
 import {
   useInfiniteQuery,
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query"
-import clsx from "clsx"
 import { intlFormatDistance } from "date-fns"
+import { type User } from "lucia"
 import { useIntersectionObserver } from "usehooks-ts"
 
+import type { FeedRow } from "~/server/models/recipe"
 import { AspectRatio } from "~/components/ui/aspect-ratio"
 import { Button } from "~/components/ui/button"
-import { getFeedPage, updateLike } from "~/server/models/recipe"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu"
+import { cn } from "~/lib/utils"
+import { deleteRecipe, getFeedPage, updateLike } from "~/server/models/recipe"
 
 function useInfiniteFeed() {
   return useInfiniteQuery({
@@ -24,7 +33,7 @@ function useInfiniteFeed() {
   })
 }
 
-export function FeedList() {
+export function FeedList({ user }: { user: User | null }) {
   const { data, hasNextPage, isFetchingNextPage, fetchNextPage } =
     useInfiniteFeed()
 
@@ -34,7 +43,11 @@ export function FeedList() {
         {data.pages.map((page, pageIdx) => (
           <Fragment key={pageIdx}>
             {page.rows.map((recipe) => (
-              <FeedItem key={recipe.id} recipe={recipe} />
+              <FeedItem
+                key={recipe.id}
+                recipe={recipe}
+                isUserOwner={recipe.userId === user?.id}
+              />
             ))}
           </Fragment>
         ))}
@@ -50,17 +63,37 @@ export function FeedList() {
 
 function FeedItem({
   recipe,
+  isUserOwner,
 }: {
-  recipe: Awaited<ReturnType<typeof getFeedPage>>["rows"][0]
+  recipe: FeedRow
+  isUserOwner: boolean
 }) {
   return (
     <div className="flex flex-col">
-      <div className="flex items-center px-4 py-3.5 sm:px-0">
+      <div className="flex items-center justify-between px-4 py-3.5 sm:px-0">
         <div>
           <h3 className="font-serif text-xl font-semibold leading-none">
             {recipe.title}
           </h3>
         </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="group flex h-full items-center justify-center outline-none">
+              <span className="i-[lucide--ellipsis] h-5 w-5 bg-foreground transition-colors group-data-[state=open]:bg-muted-foreground" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem asChild>
+              <button className="w-full" type="submit">
+                Copiar enlace
+              </button>
+            </DropdownMenuItem>
+            <OwnerDropdownItems
+              isUserOwner={isUserOwner}
+              recipeId={recipe.id}
+            />
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
       <AspectRatio
         ratio={1}
@@ -101,6 +134,38 @@ function FeedItem({
   )
 }
 
+function OwnerDropdownItems({
+  isUserOwner,
+  recipeId,
+}: {
+  isUserOwner: boolean
+  recipeId: string
+}) {
+  const [isPending, startTransition] = useTransition()
+
+  if (!isUserOwner) {
+    return null
+  }
+  return (
+    <>
+      <DropdownMenuSeparator />
+      <DropdownMenuItem asChild>
+        <button
+          className="w-full"
+          disabled={isPending}
+          onClick={() => {
+            startTransition(() => {
+              void deleteRecipe(recipeId)
+            })
+          }}
+        >
+          Borrar receta
+        </button>
+      </DropdownMenuItem>
+    </>
+  )
+}
+
 function LikeButton({
   recipeId,
   likes,
@@ -111,7 +176,7 @@ function LikeButton({
   userHasLiked: boolean
 }) {
   const queryClient = useQueryClient()
-  const { isPending, mutate, variables } = useMutation({
+  const { isPending, variables, mutate } = useMutation({
     mutationFn: (newLikeState: boolean) => updateLike(recipeId, newLikeState),
     onSettled: () => queryClient.invalidateQueries({ queryKey: ["feed"] }),
   })
@@ -125,13 +190,13 @@ function LikeButton({
         userHasLiked,
       }
 
-  const iconClass = clsx(
+  const iconClass = cn(
     "h-5 w-5 transition-colors group-hover:bg-red-500",
     optimisticData.userHasLiked === false && "i-[mingcute--heart-line]",
     optimisticData.userHasLiked === true &&
       "i-[mingcute--heart-fill] bg-red-500",
   )
-  const textClass = clsx(
+  const textClass = cn(
     "px-1 text-xs transition-colors group-hover:text-red-500",
     optimisticData.userHasLiked === true && "text-red-500",
   )

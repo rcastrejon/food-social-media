@@ -9,6 +9,9 @@ import { newId } from "~/lib/utils"
 import { validateRequest } from "../auth/validate-request"
 import { db } from "../db"
 import { recipeTable, usersToRecipes } from "../db/schema"
+import { deleteMedia } from "./media"
+
+export type FeedRow = Awaited<ReturnType<typeof getFeedPage>>["rows"][number]
 
 export async function getFeedPage(page: number) {
   const { user } = await validateRequest()
@@ -68,15 +71,26 @@ export async function createRecipe({
     redirect("/sign-in?redirect-to=/new")
   }
 
-  await db.insert(recipeTable).values({
-    id: newId("recipe"),
-    title,
-    content: {
-      ingredients,
-    },
-    userId: user.id,
-    mediaKey,
-  })
+  const [newRecipe] = await db
+    .insert(recipeTable)
+    .values({
+      id: newId("recipe"),
+      title,
+      content: {
+        ingredients,
+      },
+      userId: user.id,
+      mediaKey,
+    })
+    .returning({
+      insertedId: recipeTable.id,
+    })
+  if (newRecipe) {
+    await db.insert(usersToRecipes).values({
+      userId: user.id,
+      recipeId: newRecipe.insertedId,
+    })
+  }
   revalidatePath("/")
   redirect("/")
 }
@@ -96,12 +110,31 @@ export async function updateLike(recipeId: string, likeState: boolean) {
           eq(usersToRecipes.recipeId, recipeId),
         ),
       )
-    return
+  } else {
+    await db.insert(usersToRecipes).values({
+      userId: user.id,
+      recipeId,
+    })
+  }
+}
+
+export async function deleteRecipe(recipeId: string) {
+  const { user } = await validateRequest()
+  if (!user) {
+    throw new Error("Unauthorized")
   }
 
-  await db.insert(usersToRecipes).values({
-    userId: user.id,
-    recipeId,
-  })
-  return
+  const [deleted] = await db
+    .delete(recipeTable)
+    .where(and(eq(recipeTable.id, recipeId), eq(recipeTable.userId, user.id)))
+    .returning({
+      mediaKey: recipeTable.mediaKey,
+    })
+  if (!deleted) {
+    throw new Error(
+      "Could not delete the recipe, maybe it does not exist or you are not the owner",
+    )
+  }
+  await deleteMedia(deleted.mediaKey)
+  revalidatePath("/")
 }

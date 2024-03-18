@@ -4,10 +4,12 @@ import {
   QueryClient,
 } from "@tanstack/react-query"
 
+import { validateRequest } from "~/server/auth/validate-request"
 import { getFeedPage } from "~/server/models/recipe"
 import { FeedList } from "./feed-list"
 
 export default async function Page() {
+  const { user } = await validateRequest()
   const queryClient = new QueryClient()
 
   await queryClient.prefetchInfiniteQuery({
@@ -18,7 +20,7 @@ export default async function Page() {
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <FeedList />
+      <FeedList user={user} />
     </HydrationBoundary>
   )
 }

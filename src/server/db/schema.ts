@@ -74,6 +74,7 @@ export const mediaTable = sqliteTable("media", {
   userId: text("user_id").references(() => userTable.id, {
     onDelete: "set null",
   }),
+  customId: text("custom_id").unique(),
 
   createdAt: int("created_at", { mode: "timestamp" })
     .$defaultFn(() => new Date())
