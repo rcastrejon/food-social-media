@@ -11,7 +11,6 @@ import { Button } from "~/components/ui/button"
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -125,7 +124,10 @@ export function NewRecipeForm() {
   }
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
+      <form
+        className="flex flex-col gap-2"
+        onSubmit={form.handleSubmit(onSubmit)}
+      >
         <input
           {...form.register("mediaKey", { value: state.mediaKey })}
           hidden
@@ -139,7 +141,6 @@ export function NewRecipeForm() {
               <FormControl>
                 <Input {...field} />
               </FormControl>
-              <FormDescription>¡Sé creativo!</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -155,7 +156,7 @@ export function NewRecipeForm() {
 
 function IngredientListFieldArray() {
   const { control, trigger } = useFormContext<PostRecipeInput>()
-  const { fields, append } = useFieldArray({
+  const { fields, append, remove } = useFieldArray({
     control: control,
     name: "ingredients",
   })
@@ -179,7 +180,17 @@ function IngredientListFieldArray() {
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Input {...field} />
+                  <div className="flex space-x-2">
+                    <Input {...field} />
+                    <Button
+                      variant="outline"
+                      type="button"
+                      disabled={fields.length === 1}
+                      onClick={() => remove(index)}
+                    >
+                      <span className="i-[lucide--trash] h-4 w-4" />
+                    </Button>
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>

@@ -107,7 +107,7 @@ function FeedItem({
               className="group flex h-full items-center justify-center outline-none"
               aria-label="Más opciones"
             >
-              <span className="i-[lucide--ellipsis] h-5 w-5 bg-foreground transition-colors group-data-[state=open]:bg-muted-foreground" />
+              <span className="i-[lucide--ellipsis] h-5 w-5 bg-foreground" />
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
