@@ -62,9 +62,11 @@ export async function getFeedPage(page: number) {
 export async function createRecipe({
   title,
   ingredients,
+  content,
   mediaKey,
-}: Omit<RecipeInsert, "content" | "id" | "userId"> & {
-  ingredients: RecipeInsert["content"]["ingredients"]
+}: Pick<RecipeInsert, "title" | "mediaKey"> & {
+  ingredients: RecipeInsert["body"]["ingredients"]
+  content: RecipeInsert["body"]["content"]
 }) {
   const { user } = await validateRequest()
   if (!user) {
@@ -76,8 +78,9 @@ export async function createRecipe({
     .values({
       id: newId("recipe"),
       title,
-      content: {
+      body: {
         ingredients,
+        content,
       },
       userId: user.id,
       mediaKey,

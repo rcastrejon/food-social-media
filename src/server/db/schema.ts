@@ -36,8 +36,11 @@ export const sessionTable = sqliteTable("session", {
 export const recipeTable = sqliteTable("recipe", {
   id: text("id").notNull().primaryKey(),
   title: text("title").notNull(),
-  content: blob("content", { mode: "json" })
-    .$type<{ ingredients: Array<{ content: string }> }>()
+  body: blob("body", { mode: "json" })
+    .$type<{
+      ingredients: Array<{ content: string }>
+      content: string
+    }>()
     .notNull(),
 
   userId: text("user_id").references(() => userTable.id, {

@@ -86,6 +86,7 @@ const config = withUt({
     },
   },
   plugins: [
+    require("@tailwindcss/typography"),
     require("tailwindcss-animate"),
     addDynamicIconSelectors({
       prefix: "i",
