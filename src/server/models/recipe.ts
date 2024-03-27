@@ -98,6 +98,24 @@ export async function createRecipe({
   redirect("/")
 }
 
+export async function getRecipeById(recipeId: string) {
+  return await db.query.recipeTable.findFirst({
+    where: eq(recipeTable.id, recipeId),
+    with: {
+      media: {
+        columns: {
+          url: true,
+        },
+      },
+      user: {
+        columns: {
+          username: true,
+        },
+      },
+    },
+  })
+}
+
 export async function updateLike(recipeId: string, likeState: boolean) {
   const { user } = await validateRequest()
   if (!user) {
