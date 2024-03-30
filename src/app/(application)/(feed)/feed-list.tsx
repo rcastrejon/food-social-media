@@ -9,7 +9,8 @@ import {
 } from "@tanstack/react-query"
 import { intlFormatDistance } from "date-fns"
 import { type User } from "lucia"
-import { useIntersectionObserver } from "usehooks-ts"
+import { toast } from "sonner"
+import { useCopyToClipboard, useIntersectionObserver } from "usehooks-ts"
 import { create } from "zustand"
 
 import type { FeedRow } from "~/server/models/recipe"
@@ -93,6 +94,17 @@ function FeedItem({
   recipe: FeedRow
   isUserOwner: boolean
 }) {
+  const [, copy] = useCopyToClipboard()
+  function handleCopyLink() {
+    copy(recipe.redirectUrl)
+      .then(() => {
+        toast.info("Enlace copiado al portapapeles.")
+      })
+      .catch(() => {
+        toast.error("No se pudo copiar el enlace.")
+      })
+  }
+
   return (
     <div className="flex flex-col">
       <div className="flex items-center justify-between px-4 py-3.5 sm:px-0">
@@ -112,7 +124,7 @@ function FeedItem({
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuItem asChild>
-              <button className="w-full" type="submit">
+              <button className="w-full" type="submit" onClick={handleCopyLink}>
                 Copiar enlace
               </button>
             </DropdownMenuItem>

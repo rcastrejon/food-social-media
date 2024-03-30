@@ -5,6 +5,7 @@ import { redirect } from "next/navigation"
 import { and, desc, eq, sql } from "drizzle-orm"
 
 import type { RecipeInsert } from "../db/schema"
+import { env } from "~/env"
 import { newId } from "~/lib/utils"
 import { validateRequest } from "../auth/validate-request"
 import { db } from "../db"
@@ -40,6 +41,12 @@ export async function getFeedPage(page: number) {
             userId: true,
           },
         },
+      },
+      extras: {
+        redirectUrl:
+          sql<string>`concat(${env.HOST}, '/p/', ${recipeTable.id})`.as(
+            "redirect_url",
+          ),
       },
     })
     .prepare()
