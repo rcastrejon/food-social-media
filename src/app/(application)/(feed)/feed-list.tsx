@@ -2,6 +2,7 @@
 
 import { Fragment } from "react"
 import Image from "next/image"
+import Link from "next/link"
 import {
   useInfiniteQuery,
   useMutation,
@@ -109,14 +110,16 @@ function FeedItem({
     <div className="flex flex-col">
       <div className="flex items-center justify-between px-4 py-3.5 sm:px-0">
         <div>
-          <h3 className="font-serif text-xl font-semibold leading-none">
-            {recipe.title}
-          </h3>
+          <Link href={recipe.redirectUrl}>
+            <h3 className="font-serif text-xl font-semibold leading-none underline-offset-2 hover:underline">
+              {recipe.title}
+            </h3>
+          </Link>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
-              className="group flex h-full items-center justify-center outline-none"
+              className="group ml-5 flex h-full items-center justify-center outline-none"
               aria-label="Más opciones"
             >
               <span className="i-[lucide--ellipsis] h-5 w-5 bg-foreground" />
@@ -139,14 +142,16 @@ function FeedItem({
         ratio={1}
         className="overflow-hidden bg-primary/10 sm:rounded-md"
       >
-        <Image
-          src={recipe.media.url}
-          alt={recipe.title}
-          sizes="(min-width: 640px) 448px, 100vw"
-          placeholder="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
-          priority
-          fill
-        />
+        <Link href={recipe.redirectUrl}>
+          <Image
+            src={recipe.media.url}
+            alt={recipe.title}
+            sizes="(min-width: 640px) 448px, 100vw"
+            placeholder="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+            priority
+            fill
+          />
+        </Link>
       </AspectRatio>
       <div className="px-4 sm:px-0">
         <div className="flex flex-col">
