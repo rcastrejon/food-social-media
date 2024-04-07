@@ -95,9 +95,13 @@ function FeedItem({
   recipe: FeedRow
   isUserOwner: boolean
 }) {
+  function getRedirectUrl() {
+    return `${window.location.origin}${recipe.redirectUrl}`
+  }
+
   const [, copy] = useCopyToClipboard()
   function handleCopyLink() {
-    copy(recipe.redirectUrl)
+    copy(getRedirectUrl())
       .then(() => {
         toast.info("Enlace copiado al portapapeles.")
       })
@@ -138,11 +142,11 @@ function FeedItem({
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <AspectRatio
-        ratio={1}
-        className="overflow-hidden bg-primary/10 sm:rounded-md"
-      >
-        <Link href={recipe.redirectUrl}>
+      <Link href={recipe.redirectUrl}>
+        <AspectRatio
+          ratio={1}
+          className="overflow-hidden bg-primary/10 sm:rounded-md"
+        >
           <Image
             src={recipe.media.url}
             alt={recipe.title}
@@ -151,8 +155,8 @@ function FeedItem({
             priority
             fill
           />
-        </Link>
-      </AspectRatio>
+        </AspectRatio>
+      </Link>
       <div className="px-4 sm:px-0">
         <div className="flex flex-col">
           <div className="mt-2">
