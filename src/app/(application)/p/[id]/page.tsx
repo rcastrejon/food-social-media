@@ -1,10 +1,10 @@
 import Image from "next/image"
 import { notFound } from "next/navigation"
+import parse from "html-react-parser"
 
 import { AspectRatio } from "~/components/ui/aspect-ratio"
 import { Separator } from "~/components/ui/separator"
 import { getRecipeById } from "~/server/models/recipe"
-import { RecipeDisplay } from "./recipe-display"
 
 export default async function Page({ params }: { params: { id: string } }) {
   const recipe = await getRecipeById(params.id)
@@ -13,7 +13,7 @@ export default async function Page({ params }: { params: { id: string } }) {
   }
 
   return (
-    <div className="mx-auto grid max-w-screen-lg grid-cols-[1fr,_500px]">
+    <div className="mx-auto grid max-w-screen-lg grid-cols-[1fr,_500px] gap-4">
       <div className="relative">
         <div className="sticky top-header">
           <AspectRatio
@@ -51,7 +51,9 @@ export default async function Page({ params }: { params: { id: string } }) {
           <h2 className="font-serif text-xl font-semibold leading-none">
             Preparación
           </h2>
-          <RecipeDisplay htmlContent={recipe.body.content} />
+          <div className="prose prose-sm prose-zinc whitespace-pre-wrap">
+            {parse(recipe.body.content)}
+          </div>
         </div>
       </div>
     </div>
