@@ -39,16 +39,23 @@ import { deleteRecipe, getFeedPage, updateLike } from "~/server/models/recipe"
 interface DeleteRecipeDialogState {
   isOpen: boolean
   recipeId: string | undefined
-  open: (recipeId: string) => void
-  close: () => void
+  actions: {
+    open: (recipeId: string) => void
+    close: () => void
+  }
 }
 
 const useDeleteRecipeDialogStore = create<DeleteRecipeDialogState>((set) => ({
   isOpen: false,
   recipeId: undefined,
-  open: (recipeId: string) => set({ isOpen: true, recipeId }),
-  close: () => set({ isOpen: false, recipeId: undefined }),
+  actions: {
+    open: (recipeId: string) => set({ isOpen: true, recipeId }),
+    close: () => set({ isOpen: false, recipeId: undefined }),
+  },
 }))
+
+const useDeleteRecipeDialogActions = () =>
+  useDeleteRecipeDialogStore((state) => state.actions)
 
 function useInfiniteFeed() {
   return useInfiniteQuery({
@@ -191,7 +198,7 @@ function OwnerDropdownItems({
   isUserOwner: boolean
   recipeId: string
 }) {
-  const open = useDeleteRecipeDialogStore((state) => state.open)
+  const { open } = useDeleteRecipeDialogActions()
 
   if (!isUserOwner) {
     return null
@@ -299,8 +306,8 @@ function IntersectionElement({
 
 function DeleteRecipeDialog() {
   const isOpen = useDeleteRecipeDialogStore((state) => state.isOpen)
-  const close = useDeleteRecipeDialogStore((state) => state.close)
   const recipeId = useDeleteRecipeDialogStore((state) => state.recipeId)
+  const { close } = useDeleteRecipeDialogActions()
 
   const { mutate, isPending } = useMutation({
     mutationFn: (recipeId: string) => deleteRecipe(recipeId),
