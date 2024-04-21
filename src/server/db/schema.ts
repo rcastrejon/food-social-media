@@ -101,6 +101,11 @@ export const recipeRelations = relations(recipeTable, ({ one, many }) => ({
   likes: many(usersToRecipes),
 }))
 
+export const userRelations = relations(userTable, ({ many }) => ({
+  recipes: many(recipeTable),
+  likes: many(usersToRecipes),
+}))
+
 export const usersToRecipes = sqliteTable(
   "users_to_recipes",
   {

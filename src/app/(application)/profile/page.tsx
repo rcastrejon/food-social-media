@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation"
 
 import { validateRequest } from "~/server/auth/validate-request"
+import { ProfilePage } from "./profile-page"
 
 export default async function Page() {
   const { user } = await validateRequest()
@@ -8,9 +9,5 @@ export default async function Page() {
     redirect("/sign-in?redirect-to=/profile")
   }
 
-  return (
-    <div>
-      <h1>Perfil</h1>
-    </div>
-  )
+  return <ProfilePage username={user.username} />
 }

@@ -174,9 +174,12 @@ function FeedItem({
             />
             <p className="text-sm">
               Publicado por{" "}
-              <span className="font-semibold">
+              <Link
+                className="font-semibold underline-offset-2 hover:underline"
+                href={recipe.user ? `/profile/${recipe.user.username}` : "#"}
+              >
                 {recipe.user?.username ?? "[ELIMINADO]"}
-              </span>
+              </Link>
             </p>
             <p className="text-sm" suppressHydrationWarning>
               {intlFormatDistance(recipe.createdAt, new Date(), {

@@ -13,12 +13,12 @@ export default async function Page({ params }: { params: { id: string } }) {
   }
 
   return (
-    <div className="mx-auto grid max-w-screen-lg grid-cols-[1fr,_500px] gap-4">
+    <div className="mx-auto grid max-w-screen-lg gap-4 md:grid-cols-2">
       <div className="relative">
         <div className="sticky top-header">
           <AspectRatio
             ratio={1}
-            className="overflow-hidden bg-primary/10 sm:rounded-md"
+            className="overflow-hidden bg-primary/10 md:rounded-md"
           >
             <Image
               src={recipe.media.url}
@@ -31,7 +31,7 @@ export default async function Page({ params }: { params: { id: string } }) {
           </AspectRatio>
         </div>
       </div>
-      <div className="flex flex-col">
+      <div className="mx-4 flex flex-col md:mx-0">
         <h1 className="font-serif text-2xl font-semibold leading-none">
           {recipe.title}
         </h1>
