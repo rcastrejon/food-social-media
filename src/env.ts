@@ -23,10 +23,20 @@ export const env = createEnv({
         "You forgot to change the default app id",
       ),
   },
-  client: {},
+  client: {
+    NEXT_PUBLIC_POSTHOG_KEY: z
+      .string()
+      .refine(
+        (str) => !str.includes("YOUR_KEY_HERE"),
+        "You forgot to change the default key",
+      ),
+    NEXT_PUBLIC_POSTHOG_HOST: z.string().optional(),
+  },
   // For Next.js >= 13.4.4, you only need to destructure client variables:
   experimental__runtimeEnv: {
     // NEXT_PUBLIC_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_PUBLISHABLE_KEY,
+    NEXT_PUBLIC_POSTHOG_KEY: process.env.NEXT_PUBLIC_POSTHOG_KEY,
+    NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

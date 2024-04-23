@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation"
 
+import PostHogClient from "~/lib/posthog"
 import { validateRequest } from "~/server/auth/validate-request"
 import {
   NewRecipeForm,
@@ -11,6 +12,17 @@ export default async function Page() {
   const { user } = await validateRequest()
   if (!user) {
     redirect("/sign-in?redirect-to=/new")
+  }
+
+  const posthog = PostHogClient()
+  const isEnabled = await posthog.isFeatureEnabled(
+    "new-recipe-enabled",
+    user.id,
+  )
+  await posthog.shutdown()
+
+  if (isEnabled === false) {
+    redirect("/")
   }
 
   return (
