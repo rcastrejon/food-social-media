@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
-import { and, desc, eq, sql } from "drizzle-orm"
+import { and, desc, eq, like, or, sql } from "drizzle-orm"
 
 import type { RecipeInsert } from "../db/schema"
 import { newId } from "~/lib/utils"
@@ -163,4 +163,25 @@ export async function deleteRecipe(recipeId: string) {
   }
   await deleteMedia(deleted.mediaKey)
   revalidatePath("/")
+}
+
+export async function searchRecipe(query: string) {
+  return await db.query.recipeTable.findMany({
+    where: or(
+      like(recipeTable.title, `%${query}%`),
+      sql`body->>'content' like ${`%${query}%`}`,
+    ),
+    with: {
+      user: {
+        columns: {
+          username: true,
+        },
+      },
+      media: {
+        columns: {
+          url: true,
+        },
+      },
+    },
+  })
 }
