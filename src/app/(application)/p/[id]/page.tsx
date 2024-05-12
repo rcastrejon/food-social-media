@@ -51,7 +51,7 @@ export default async function Page({ params }: { params: { id: string } }) {
           <h2 className="font-serif text-xl font-semibold leading-none">
             Preparación
           </h2>
-          <div className="prose prose-sm prose-zinc whitespace-pre-wrap">
+          <div className="prose prose-sm prose-zinc whitespace-pre-wrap break-words">
             {parse(recipe.body.content)}
           </div>
         </div>
