@@ -210,6 +210,11 @@ function OwnerDropdownItems({
     <>
       <DropdownMenuSeparator />
       <DropdownMenuItem asChild>
+        <Link className="block w-full" href={`/p/${recipeId}/edit`}>
+          Editar receta
+        </Link>
+      </DropdownMenuItem>
+      <DropdownMenuItem asChild>
         <button className="w-full" onClick={() => open(recipeId)}>
           Borrar receta
         </button>

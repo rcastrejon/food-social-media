@@ -24,3 +24,19 @@ export const PostRecipeSchema = object({
 })
 
 export type PostRecipeInput = Input<typeof PostRecipeSchema>
+
+export const EditRecipeSchema = object({
+  title: string([toTrimmed(), minLength(1, "Elige un título para tu receta.")]),
+  ingredients: array(IngredientSchema, [
+    minLength(1, "Agrega al menos un ingrediente."),
+  ]),
+  content: string([
+    custom((htmlString) => {
+      const cleanString = htmlString.replace(/<\/?[^>]+(>|$)/g, "")
+      // Check if the cleaned string has more than 20 characters
+      return cleanString.trim().length >= 50
+    }, "La receta debe tener al menos 50 caracteres."),
+  ]),
+})
+
+export type EditRecipeInput = Input<typeof EditRecipeSchema>

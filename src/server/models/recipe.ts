@@ -103,6 +103,45 @@ export async function createRecipe({
   redirect("/")
 }
 
+export async function editRecipeById(
+  id: string,
+  {
+    title,
+    ingredients,
+    content,
+  }: Pick<RecipeInsert, "title"> & {
+    ingredients: RecipeInsert["body"]["ingredients"]
+    content: RecipeInsert["body"]["content"]
+  },
+) {
+  const { user } = await validateRequest()
+  if (!user) {
+    redirect("/sign-in?redirect-to=/")
+  }
+
+  const [updatedRecipe] = await db
+    .update(recipeTable)
+    .set({
+      title,
+      body: {
+        ingredients,
+        content,
+      },
+    })
+    .where(and(eq(recipeTable.id, id), eq(recipeTable.userId, user.id)))
+    .returning({
+      updatedId: recipeTable.id,
+    })
+  if (!updatedRecipe) {
+    throw new Error(
+      "Could not update the recipe, maybe it does not exist or you are not the owner",
+    )
+  }
+  revalidatePath("/")
+  revalidatePath(`/p/${id}`)
+  redirect(`/p/${id}`)
+}
+
 export async function getRecipeById(recipeId: string) {
   return await db.query.recipeTable.findFirst({
     where: eq(recipeTable.id, recipeId),
